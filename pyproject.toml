@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bradan-quantum-qframe"
+version = "0.0.1"
+authors = [
+  { name="Fintan Bolton", email="fintan.bolton@bradan-quantum.com" },
+]
+description = "General framework for quantum algorithms"
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+# Version history of Qrisp: https://pypi.org/project/qrisp/#history
+dependencies = [
+  "qrisp==0.7.11",
+  "qutip==5.2.0",
+  "numpy==2.3.2",
+  "scipy==1.16.1",
+  "ipykernel==6.30.1",
+  "nbconvert==7.16.6",
+  "traitlets==5.14.3",
+  "nbformat==5.10.4",
+  "z3-solver==4.15.4.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/bradan-quantum"
+Issues = "https://github.com/bradan-quantum"
+
+[tool.hatch.envs.test]
+dependencies = [
+  "coverage[toml]",
+  "pytest",
+  "pytest-cov",
+  "pytest-mock",
+]
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+
+# [tool.setuptools.packages.find]
+# where = ["src"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/qframe"]
+
+# Needed to avoid the following error condition:
+# AttributeError: module 'hatchling.build' has no attribute 'prepare_metadata_for_build_editable'
+[tool.hatch.metadata]
+allow-direct-references = true
