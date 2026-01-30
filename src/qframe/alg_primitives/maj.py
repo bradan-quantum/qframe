@@ -27,6 +27,9 @@ def majority_gate(a, b, c):
 
 @qrisp.gate_wrap(name='rMaj')
 def recip_majority_gate(a:qrisp.Qubit, b:qrisp.Qubit, c:qrisp.Qubit, phase_oracle:qrisp.Qubit):
+    """
+    Applies the circuit for the reciprocal majority() gate
+    """
     qrisp.cx(a, c)
     qrisp.cx(b, c)
     with qrisp.control(c):
@@ -35,3 +38,13 @@ def recip_majority_gate(a:qrisp.Qubit, b:qrisp.Qubit, c:qrisp.Qubit, phase_oracl
         h(b)
         qrisp.mcx([a, b], phase_oracle)
         qrisp.swap(a, b)
+
+@qrisp.gate_wrap(name='rMaj_1')
+def recip_majority_first_order_gate(a:qrisp.Qubit, b:qrisp.Qubit, c:qrisp.Qubit):
+    """
+    Applies the circuit for the **first order** reciprocal majority() gate
+
+    An optimization of the reciprocal majority gate, got by dropping the second half of the circuit. This optimization should only be enabled in the appropriate context: in some cases, after applying this gate, only the 'c' qubit (which references the output of the Maj() function) is used before uncomputing (by applying the inverse reciprocal majority gate). In this case, the second half of the reciprocal majority circuit is superfluous, because it change qubits 'a' and 'b' only and this change gets immediately reversed by the uncompute.
+    """
+    qrisp.cx(a, c)
+    qrisp.cx(b, c)
