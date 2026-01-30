@@ -25,10 +25,9 @@ def majority_gate(a, b, c):
     for k in range(len(c)):
         qrisp.mcx([a[k], b[k]], c[k])
 
-@qrisp.gate_wrap(name='rMaj')
-def recip_majority_gate(a:qrisp.Qubit, b:qrisp.Qubit, c:qrisp.Qubit, phase_oracle:qrisp.Qubit):
+def _recip_majority_single_bit_gate(a:qrisp.Qubit, b:qrisp.Qubit, c:qrisp.Qubit, phase_oracle:qrisp.Qubit):
     """
-    Applies the circuit for the reciprocal majority() gate
+    Applies the single-qubit variant of the reciprocal majority() gate
     """
     qrisp.cx(a, c)
     qrisp.cx(b, c)
@@ -39,8 +38,22 @@ def recip_majority_gate(a:qrisp.Qubit, b:qrisp.Qubit, c:qrisp.Qubit, phase_oracl
         qrisp.mcx([a, b], phase_oracle)
         qrisp.swap(a, b)
 
+
+@qrisp.gate_wrap(name='rMaj')
+def recip_majority_gate(a, b, c, phase_oracle:qrisp.Qubit):
+    """
+    Applies the multi-qubit (and single-bit) variant of the reciprocal majority() gate
+    """
+    if isinstance(c, qrisp.Qubit):
+        _recip_majority_single_bit_gate(a, b, c, phase_oracle)
+    elif isinstance(c, qrisp.QuantumVariable):
+        for k in range(len(c)):
+            _recip_majority_single_bit_gate(a[k], b[k], c[k], phase_oracle)
+    else:
+        raise Exception('Arguments a, b, c should either be all Qubit or all QuantumVariable types')
+
 @qrisp.gate_wrap(name='rMaj_1')
-def recip_majority_first_order_gate(a:qrisp.Qubit, b:qrisp.Qubit, c:qrisp.Qubit):
+def recip_majority_first_order_gate(a, b, c):
     """
     Applies the circuit for the **first order** reciprocal majority() gate
 
