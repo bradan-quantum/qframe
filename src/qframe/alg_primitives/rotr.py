@@ -30,7 +30,7 @@ def _rotr(x, n, w):
 
 
 class Rotr:
-    def __init__(self, width:int, rotr_list:list[int], shr_list:list[int]= None):
+    def __init__(self, width:int, rotr_list:list[int], shr_list:list[int]= []):
         self.width = width
         self.rotr_list = rotr_list
         self.shr_list = shr_list
@@ -47,6 +47,8 @@ class Rotr:
         for i in range(self.width):
             z3_solver.add(sigma_func(inv_x[i]) == (1 << i))
         z3_solver.check()
+        # print(z3_solver.check())
+        # print(z3_solver.unsat_core())
         res = z3_solver.model()
         # Initialize the inverter table
         inv_sigma_table = list()
@@ -58,26 +60,24 @@ class Rotr:
         res = z3.RotateRight(x, self.rotr_list[0])
         for k in range(1, len(self.rotr_list)):
             res ^= z3.RotateRight(x, self.rotr_list[k])
-        if self.shr_list is not None:
-            for k in range(len(self.shr_list)):
-                res ^= x >> self.shr_list[k]
+        for k in range(len(self.shr_list)):
+            res ^= z3.LShR(x, self.shr_list[k])
         return res
 
     def _recip_sigma_z3(self, kappa):
         res = z3.RotateRight(kappa, self.rotr_list[0])
         for k in range(1, len(self.rotr_list)):
             res ^= z3.RotateLeft(kappa, self.rotr_list[k])  # In reciprocal space, RotateRight becomes RotateLeft
-        # ToDo: Don't yet know how to code the reciprocal SHR() operation!
-        # ...
+        for k in range(len(self.shr_list)):
+            res ^= (kappa << self.shr_list[k] )  # In reciprocal space, 'shift right' becomes 'shift left'
         return res
 
     def rotr_function(self, x: int) -> int:
         result = 0
         for k in range(len(self.rotr_list)):
             result ^= _rotr(x, self.rotr_list[k], self.width)
-        if self.shr_list is not None:
-            for k in range(len(self.shr_list)):
-                result ^= (x >> self.shr_list[k])
+        for k in range(len(self.shr_list)):
+            result ^= (x >> self.shr_list[k])
         return result
 
     def inv_rotr_function(self, x: int) -> int:
@@ -87,4 +87,58 @@ class Rotr:
                 x_inv ^= self.inv_sigma_table[i]
         return x_inv
 
+    @qrisp.gate_wrap(name='Rotr')
+    def rotr_gate(self, x: qrisp.QuantumVariable, anc: qrisp.QuantumVariable, clean_up=True, no_swap=False):
+        n_qubit = len(x)
+        # Parameter validation
+        if n_qubit != self.width:
+            raise Exception(f'Size of quantum variable x must equal the bit width of this Rotr instance')
+        if len(anc) != self.width:
+            raise Exception(f'Size of anc argument must equal the bit width of this Rotr instance')
+        # Apply circuit for: rotr_function(x) -> anc
+        for j in range(len(x)):
+            for k in range(len(self.rotr_list)):
+                jj = (j + self.rotr_list[k] ) % n_qubit
+                qrisp.cx(x[jj], anc[j])
+            for k in range(len(self.shr_list)):
+                jj = j + self.rotr_list[k]
+                if jj < n_qubit:
+                    qrisp.cx(x[jj], anc[j])
+        if clean_up:
+            # Clean up the untransformed value in the 'x' quantum variable (uncompute to 0)
+            for i in range(len(anc)):
+                xor_layer = self.inv_sigma_table[i]
+                for j in range(len(x)):
+                    if _bit(xor_layer, j):
+                        qrisp.cx(anc[i], x[j])
+        if not no_swap:
+            # Swap x <--> anc
+            qrisp.swap(x, anc)
 
+    @qrisp.gate_wrap(name='rRotr')
+    def recip_rotr_gate(self, x: qrisp.QuantumVariable, anc: qrisp.QuantumVariable, clean_up=True, no_swap=False):
+        n_qubit = len(x)
+        # Parameter validation
+        if n_qubit != self.width:
+            raise Exception(f'Size of quantum variable x must equal the bit width of this Rotr instance')
+        if len(anc) != self.width:
+            raise Exception(f'Size of anc argument must equal the bit width of this Rotr instance')
+        # Apply circuit for: recip_rotr_function(x) -> anc
+        for i in range(len(x)):
+            xor_layer = self.recip_sigma_table[i]
+            for j in range(len(anc)):
+                if _bit(xor_layer, j):
+                    qrisp.cx(x[i], anc[j])
+        if clean_up:
+            # Clean up the untransformed value in the 'x' quantum variable (uncompute to 0)
+            for j in range(len(anc)):
+                for k in range(len(self.rotr_list)):
+                    jj = (j - self.rotr_list[k] ) % n_qubit
+                    qrisp.cx(anc[jj], x[j])
+                for k in range(len(self.shr_list)):
+                    jj = j - self.rotr_list[k]
+                    if jj >= 0:
+                        qrisp.cx(anc[jj], x[j])
+        if not no_swap:
+            # Swap x <--> anc - noting that the reciprocal of 'swap' is 'swap'
+            qrisp.swap(x, anc)
