@@ -47,25 +47,53 @@ class Test_Rotr:
     def recip_oracle_function(self, r: Rotr, x: qrisp.QuantumVariable, anc: qrisp.QuantumVariable):
         r.recip_rotr_gate(x, anc)
 
-    def test_rotr_gate(self):
-        # r = Rotr(8, [2, 5, 7])
-        r = Rotr(8, [2, 5], shr_list=[7])
-        seed = 0b10011011
+    @pytest.mark.parametrize(
+        'n_qubit, seed, rotr_list, shr_list',
+        [
+            (8, 0b10011011, [2, 5, 7], []),
+            (8, 0b10011011, [0, 1, 3, 5, 7], []),
+            (8, 0b10011011, [2, 5],    [7]),
+            (8, 0b10101101, [0, 1, 3], [5, 7])
+        ]
+    )
+    def test_rotr_gate(self, n_qubit, seed, rotr_list, shr_list):
+        n_qubit_mask = (0b1 << n_qubit) -1
+        r = Rotr(n_qubit, rotr_list, shr_list)
+        print('\n\n##################################################################')
+        print(f'# Test run:  n_qubit = {n_qubit}, rotr_list = {rotr_list}. shr_list={shr_list}')
+        assert (len(rotr_list) + len(shr_list)) % 2 == 1, 'Sum of len(rotr_list) + len(shr_list) must be odd'
+
+        seed   &= n_qubit_mask
         target = r.rotr_function(seed)
-        print(f'seed = 0b{seed:08b}')
-        print(f'target = 0b{target:08b}')
+        print(f'seed = 0b{seed:08b} = {seed}')
+        print(f'target = 0b{target:08b} = {target}')
+
+        print()
+        print('inv_sigma_table')
+        print(r.inv_sigma_table)
+        print()
+        print('recip_sigma_table')
+        print(r.recip_sigma_table)
+
+        # Self-test inverse functions
+        for x in range(2**n_qubit):
+            assert x == r.inv_rotr_function( r.rotr_function(x) )
+        for x in range(2**n_qubit):
+            assert x == r.recip_rotr_function( r.recip_inv_rotr_function(x) )
 
         # Brute force the solution
         brute_soln = list()
-        for j in range(2**8):
+        for j in range(2**n_qubit):
             if r.rotr_function(j) == target:
                 brute_soln.append(j)
+        print()
         print('Brute force solution:')
         print(brute_soln)
+        print()
 
         # Initialize variables
-        x   = qrisp.QuantumFloat(8, name='x')
-        anc = qrisp.QuantumFloat(8, name='anc')
+        x   = qrisp.QuantumFloat(n_qubit, name='x')
+        anc = qrisp.QuantumFloat(n_qubit, name='anc')
 
         # Prepare the quantum state in an equal-weighted superposition (Walsh-Hadamard transform)
         h(x)
@@ -94,9 +122,9 @@ class Test_Rotr:
         results = x.get_measurement()
         print(results)
 
-        # for meas in results.keys():
-        #     print(f'meas = 0b{meas:08b}, rotr_function(meas) = 0b{r.rotr_function(meas):08b}')
-        #     assert meas == seed
+        for meas in results.keys():
+            print(f'meas = 0b{meas:08b}, rotr_function(meas) = 0b{r.rotr_function(meas):08b}')
+            assert meas == seed
 
     @pytest.mark.skip
     def test_rotr_gate_variants(self):

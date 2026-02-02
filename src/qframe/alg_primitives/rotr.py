@@ -65,7 +65,7 @@ class Rotr:
         return res
 
     def _recip_sigma_z3(self, kappa):
-        res = z3.RotateRight(kappa, self.rotr_list[0])
+        res = z3.RotateLeft(kappa, self.rotr_list[0])  # In reciprocal space, RotateRight becomes RotateLeft
         for k in range(1, len(self.rotr_list)):
             res ^= z3.RotateLeft(kappa, self.rotr_list[k])  # In reciprocal space, RotateRight becomes RotateLeft
         for k in range(len(self.shr_list)):
@@ -87,6 +87,22 @@ class Rotr:
                 x_inv ^= self.inv_sigma_table[i]
         return x_inv
 
+    def recip_rotr_function(self, x: int) -> int:
+        x_inv = 0
+        for i in range(self.width):
+            if x & (0b1 << i):
+                x_inv ^= self.recip_sigma_table[i]
+        return x_inv
+
+    def recip_inv_rotr_function(self, x: int) -> int:
+        mask = (0b1 << self.width) - 1
+        result = 0
+        for k in range(len(self.rotr_list)):
+            result ^= _rotr(x, -self.rotr_list[k], self.width)  # Negative rotr()
+        for k in range(len(self.shr_list)):
+            result ^= (x << self.shr_list[k]) & mask
+        return result
+
     @qrisp.gate_wrap(name='Rotr')
     def rotr_gate(self, x: qrisp.QuantumVariable, anc: qrisp.QuantumVariable, clean_up=True, no_swap=False):
         n_qubit = len(x)
@@ -101,7 +117,7 @@ class Rotr:
                 jj = (j + self.rotr_list[k] ) % n_qubit
                 qrisp.cx(x[jj], anc[j])
             for k in range(len(self.shr_list)):
-                jj = j + self.rotr_list[k]
+                jj = j + self.shr_list[k]
                 if jj < n_qubit:
                     qrisp.cx(x[jj], anc[j])
         if clean_up:
@@ -132,13 +148,13 @@ class Rotr:
         if clean_up:
             # Clean up the untransformed value in the 'x' quantum variable (uncompute to 0)
             for j in range(len(anc)):
-                for k in range(len(self.rotr_list)):
-                    jj = (j - self.rotr_list[k] ) % n_qubit
-                    qrisp.cx(anc[jj], x[j])
                 for k in range(len(self.shr_list)):
-                    jj = j - self.rotr_list[k]
+                    jj = j - self.shr_list[k]
                     if jj >= 0:
                         qrisp.cx(anc[jj], x[j])
+                for k in range(len(self.rotr_list)):
+                    jj = (j - self.rotr_list[k]) % n_qubit
+                    qrisp.cx(anc[jj], x[j])
         if not no_swap:
             # Swap x <--> anc - noting that the reciprocal of 'swap' is 'swap'
             qrisp.swap(x, anc)
