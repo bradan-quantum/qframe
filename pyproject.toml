@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "bradan-quantum-qframe"
+name = "qframe"
 version = "0.0.1"
 authors = [
   { name="Fintan Bolton", email="fintan.bolton@bradan-quantum.com" },
