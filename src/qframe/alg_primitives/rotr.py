@@ -47,8 +47,6 @@ class Rotr:
         for i in range(self.width):
             z3_solver.add(sigma_func(inv_x[i]) == (1 << i))
         z3_solver.check()
-        # print(z3_solver.check())
-        # print(z3_solver.unsat_core())
         res = z3_solver.model()
         # Initialize the inverter table
         inv_sigma_table = list()

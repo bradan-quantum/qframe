@@ -15,6 +15,6 @@
 # ********************************************************************************
 
 from qframe.alg_primitives.adder import recip_adder_gate
-from qframe.alg_primitives.ch    import choose_gate, recip_choose_gate, recip_choose_first_order_gate
-from qframe.alg_primitives.maj   import majority_gate, recip_majority_gate, recip_majority_first_order_gate
+from qframe.alg_primitives.ch    import choose_gate, recip_choose_gate, recip_choose_first_order_gate, choose_function
+from qframe.alg_primitives.maj   import majority_gate, recip_majority_gate, recip_majority_first_order_gate, majority_function
 from qframe.alg_primitives.rotr  import Rotr

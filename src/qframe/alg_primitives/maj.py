@@ -17,6 +17,19 @@
 import qrisp
 from qrisp import h
 
+def _bit(b, j):
+    return ((0b1 << j) & b) >> j
+
+def majority_function(a: int, b: int, c: int, width=1) -> int:
+    if (a.bit_length() > width) or (b.bit_length() > width) or (c.bit_length() > width):
+        raise Exception(f'Arguments a, b, c greater than specified bit width {width}')
+    result = 0
+    for i in range(width):
+        ai = _bit(a, i)
+        bi = _bit(b, i)
+        ci = _bit(c, i)
+        result |= ( (ai * bi) ^ (bi * ci) ^ (ci * ai) ) << i
+    return result
 
 @qrisp.gate_wrap(name='Maj')
 def majority_gate(a, b, c):

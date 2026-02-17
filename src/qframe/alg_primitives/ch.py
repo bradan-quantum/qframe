@@ -17,6 +17,19 @@
 import qrisp
 from qrisp import h
 
+def _bit(b, j):
+    return ((0b1 << j) & b) >> j
+
+def choose_function(a: int, b: int, c: int, width=1) -> int:
+    if (a.bit_length() > width) or (b.bit_length() > width) or (c.bit_length() > width):
+        raise Exception(f'Arguments a, b, c greater than specified bit width {width}')
+    result = 0
+    for i in range(width):
+        ai = _bit(a, i)
+        bi = _bit(b, i)
+        ci = _bit(c, i)
+        result |= ( (ai * bi) ^ ((1-ai) * ci) ) << i
+    return result
 
 @qrisp.gate_wrap(name='Ch')
 def choose_gate(a, b, c):
@@ -51,7 +64,7 @@ def recip_choose_gate(a, b, c, phase_oracle:qrisp.Qubit):
         raise Exception('Arguments a, b, c should either be all Qubit or all QuantumVariable types')
 
 @qrisp.gate_wrap(name='rCh_1')
-def recip_choose_first_order_gate(a:qrisp.Qubit, b:qrisp.Qubit, c:qrisp.Qubit):
+def recip_choose_first_order_gate(a, b, c):
     """
     Applies the circuit for the **first order** reciprocal choose() gate
 
