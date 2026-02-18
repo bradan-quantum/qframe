@@ -22,14 +22,14 @@ from qframe.core.qframe_uint import QFrameUInt
 import qframe
 
 
-class Test_QFS_Majority:
-    def test_qfs_majority(self):
+class Test_QFS_Choose:
+    def test_qfs_choose(self):
         v1 = QFrameUInt(4, name='v1')
         v2 = QFrameUInt(4, name='v2')
         v3 = QFrameUInt(4, name='v3')
         v4 = QFrameUInt(4, name='v4')
 
-        v1 += qframe.maj(v2, v3, v4)
+        v1 += qframe.ch(v2, v3, v4)
 
         # Get the QFrameSession object
         qfs = v1.qfs

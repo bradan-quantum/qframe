@@ -90,7 +90,6 @@ class MajorityOperationWrapper(OperationWrapper):
         self.c_qfv.qfs.merge(self.a_qfv.qfs)
         self.c_qfv.qfs.merge(self.b_qfv.qfs)
 
-
     def gate_apply(self, qfs: QFrameSession) -> None:
         majority_gate(self.a_qfv.qv, self.b_qfv.qv, self.c_qfv.qv)
         self._gate_result_qfv = self.c_qfv
