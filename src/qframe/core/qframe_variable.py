@@ -23,7 +23,9 @@ class QFrameVariable:
             self.qfs = qfs
         else:
             self.qfs = QFrameSession()
-        self.qfs.register_qfv(self, size)
 
+        self.qv = None
+        self.qfs.register_qfv(self, size)
+        self.size = size
         if name is not None:
             self.name = name

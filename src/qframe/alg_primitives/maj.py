@@ -16,6 +16,9 @@
 
 import qrisp
 from qrisp import h
+from qframe.core.operation_wrapper import OperationWrapper
+from qframe.core.qframe_session import QFrameSession
+from qframe.core.qframe_variable import QFrameVariable
 
 def _bit(b, j):
     return ((0b1 << j) & b) >> j
@@ -74,3 +77,32 @@ def recip_majority_first_order_gate(a, b, c):
     """
     qrisp.cx(a, c)
     qrisp.cx(b, c)
+
+
+class MajorityOperationWrapper(OperationWrapper):
+    def __init__(self, a_qfv, b_qfv, c_qfv):
+        super().__init__(conjugate_me=True)
+        self.a_qfv: QFrameVariable = a_qfv
+        self.b_qfv: QFrameVariable = b_qfv
+        self.c_qfv: QFrameVariable = c_qfv
+
+    def merge_qfs(self):
+        self.c_qfv.qfs.merge(self.a_qfv.qfs)
+        self.c_qfv.qfs.merge(self.b_qfv.qfs)
+
+
+    def gate_apply(self, qfs: QFrameSession) -> None:
+        majority_gate(self.a_qfv.qv, self.b_qfv.qv, self.c_qfv.qv)
+        self._gate_result_qfv = self.c_qfv
+
+    def recip_gate_apply(self, qfs: QFrameSession) -> None:
+        recip_majority_gate(self.a_qfv.qv, self.b_qfv.qv, self.c_qfv.qv, qfs.phase_anc)
+        self._recip_gate_result_qfv = self.c_qfv
+
+    def calculate(self, arg_dict: dict):
+        w = self.c_qfv.size
+        return majority_function(arg_dict[self.a_qfv], arg_dict[self.b_qfv], arg_dict[self.c_qfv], width=w)
+
+
+def maj(a: QFrameVariable, b: QFrameVariable, c: QFrameVariable):
+    return MajorityOperationWrapper(a, b, c)

@@ -38,4 +38,28 @@ class QFrameUInt(QFrameVariable):
             opw.set_recip_gate_apply_impl(lambda qfs: recip_adder_gate(other.qv, self.qv, qfs.recip_carry_anc, qfs.phase_anc))
             opw.set_calculate_impl(_calculate_impl)
             self.qfs.append_operation_wrapper(opw)
+        elif isinstance(other, OperationWrapper):
+            other.merge_qfs()
+            opw = OperationWrapper()
+            def _gate_apply_impl(qfs: QFrameSession):
+                if other.conjugate_me:
+                    with qrisp.conjugate(other.gate_apply)(qfs):
+                        self.qv += other.gate_result_qfv.qv
+                else:
+                    other.gate_apply(qfs)
+                    self.qv += other.gate_result_qfv.qv
+            def _recip_gate_apply_impl(qfs: QFrameSession):
+                if other.conjugate_me:
+                    with qrisp.conjugate(other.recip_gate_apply)(qfs):
+                        recip_adder_gate(other.gate_result_qfv.qv, self.qv, qfs.recip_carry_anc, qfs.phase_anc)
+                else:
+                    other.recip_gate_apply(qfs)
+                    recip_adder_gate(other.gate_result_qfv.qv, self.qv, qfs.recip_carry_anc, qfs.phase_anc)
+            def _calculate_impl(arg_dict:dict):
+                arg_dict[self] += other.calculate(arg_dict)
+            opw.set_gate_apply_impl(_gate_apply_impl)
+            opw.set_recip_gate_apply_impl(_recip_gate_apply_impl)
+            opw.set_calculate_impl(_calculate_impl)
+            self.qfs.append_operation_wrapper(opw)
+
         return self

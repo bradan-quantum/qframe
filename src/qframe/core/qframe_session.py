@@ -36,13 +36,17 @@ class QFrameSession:
         for v in qfs_other.qfv_list:
             v.qfs = self
 
-    def calculate(self, arg_dict: dict):
+    def calculate(self, arg_dict: dict, raw_result=False):
+        working_arg_dict = arg_dict.copy()
         for opw in self.opw_list:
-            opw.calculate(arg_dict)
-        result_dict = {}
-        for qfv in arg_dict.keys():
-            result_dict[qfv.name] = arg_dict[qfv]
-        return result_dict
+            opw.calculate(working_arg_dict)
+        if raw_result:
+            return working_arg_dict
+        else:
+            result_dict = {}
+            for qfv in working_arg_dict.keys():
+                result_dict[qfv.name] = working_arg_dict[qfv]
+            return result_dict
 
     def apply_oracle_gate(self, target_dict: dict= {}):
         # Perform gate operations

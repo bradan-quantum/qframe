@@ -16,16 +16,20 @@
 
 import qrisp
 from qframe.core.qframe_session import QFrameSession
-
+from qframe.core.qframe_variable import QFrameVariable
 
 class OperationWrapper:
     def __init__(self, conjugate_me=False):
         self.conjugate_me = conjugate_me
         self._gate_apply_impl = None
-        self._gate_result_qfv = None
+        self._gate_result_qfv: QFrameVariable = None
         self._recip_gate_apply_impl = None
-        self._recip_gate_result_qfv = None
+        self._recip_gate_result_qfv: QFrameVariable = None
         self._calculate_impl = None
+
+    def merge_qfs(self):
+        # Override this method when necessary
+        pass
 
     # Gate methods/properties
     def gate_apply(self, qfs: QFrameSession) -> None:
