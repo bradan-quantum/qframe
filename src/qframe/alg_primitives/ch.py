@@ -82,9 +82,11 @@ class ChooseOperationWrapper(OperationWrapper):
         self.b_qfv: QFrameVariable = b_qfv
         self.c_qfv: QFrameVariable = c_qfv
 
-    def merge_qfs(self):
+    def merge_qfs(self, other_qfs= None):
         self.c_qfv.qfs.merge(self.a_qfv.qfs)
         self.c_qfv.qfs.merge(self.b_qfv.qfs)
+        if other_qfs is not None:
+            self.c_qfv.qfs.merge(other_qfs)
 
     def gate_apply(self, qfs: QFrameSession) -> None:
         choose_gate(self.a_qfv.qv, self.b_qfv.qv, self.c_qfv.qv)

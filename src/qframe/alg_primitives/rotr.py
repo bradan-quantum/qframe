@@ -19,6 +19,11 @@ from qrisp import h
 from collections.abc import Callable
 import z3
 
+from qframe.core.operation_wrapper import OperationWrapper
+from qframe.core.qframe_session import QFrameSession
+from qframe.core.qframe_variable import QFrameVariable
+
+
 def _bit(b, j):
     return ((0b1 << j) & b) >> j
 
@@ -156,3 +161,32 @@ class Rotr:
         if not no_swap:
             # Swap x <--> anc - noting that the reciprocal of 'swap' is 'swap'
             qrisp.swap(x, anc)
+
+    def shift(self, x: QFrameVariable):
+        return ShiftOperationWrapper(self, x)
+
+
+class ShiftOperationWrapper(OperationWrapper):
+    def __init__(self, r: Rotr, x_qfv: QFrameVariable):
+        super().__init__(conjugate_me=True)
+        self.r = r
+        self.x_qfv: QFrameVariable = x_qfv
+        # At this point, we allocate a rotr ancillary
+        x_qfv.qfs._rotr_anc = qrisp.QuantumVariable(x_qfv.size, name='_rotr_anc')
+
+    def merge_qfs(self, other_qfs= None):
+        if other_qfs is not None:
+            self.x_qfv.qfs.merge(other_qfs)
+
+    def gate_apply(self, qfs: QFrameSession) -> None:
+        # self.r.rotr_gate(self.x_qfv.qv, qfs._rotr_anc, clean_up=False, no_swap=True)
+        self.r.rotr_gate(self.x_qfv.qv, qfs._rotr_anc)
+        self._gate_result_qfv = self.x_qfv
+
+    def recip_gate_apply(self, qfs: QFrameSession) -> None:
+        # self.r.recip_rotr_gate(self.x_qfv.qv, qfs._rotr_anc, clean_up=False, no_swap=True)
+        self.r.recip_rotr_gate(self.x_qfv.qv, qfs._rotr_anc)
+        self._recip_gate_result_qfv = self.x_qfv
+
+    def calculate(self, arg_dict: dict):
+        return self.r.rotr_function(arg_dict[self.x_qfv])

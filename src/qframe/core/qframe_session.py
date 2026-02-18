@@ -23,6 +23,7 @@ class QFrameSession:
         self.qfv_list = []
         self._phase_anc = qrisp.QuantumVariable(1, name='_phase_anc')
         self._recip_carry_anc = qrisp.QuantumVariable(1, name='_recip_carry_anc')
+        self._rotr_anc: qrisp.QuantumVariable = None
 
     def register_qfv(self, qfv, size):
         self.qfv_list.append(qfv)
@@ -31,10 +32,20 @@ class QFrameSession:
         self.opw_list.append(opw)
 
     def merge(self, qfs_other):
+        if self == qfs_other:
+            return
+
         self.opw_list.extend(qfs_other.opw_list)
         self.qfv_list.extend(qfs_other.qfv_list)
         for v in qfs_other.qfv_list:
             v.qfs = self
+
+        # Keep the largest _rotr_anc variable (if any)
+        if qfs_other._rotr_anc is not None:
+            if self._rotr_anc is None:
+                self._rotr_anc = qfs_other._rotr_anc
+            elif qfs_other._rotr_anc.size > self._rotr_anc.size:
+                self._rotr_anc = qfs_other._rotr_anc
 
     def calculate(self, arg_dict: dict, raw_result=False):
         working_arg_dict = arg_dict.copy()

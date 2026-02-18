@@ -39,7 +39,7 @@ class QFrameUInt(QFrameVariable):
             opw.set_calculate_impl(_calculate_impl)
             self.qfs.append_operation_wrapper(opw)
         elif isinstance(other, OperationWrapper):
-            other.merge_qfs()
+            other.merge_qfs(self.qfs)
             opw = OperationWrapper()
             def _gate_apply_impl(qfs: QFrameSession):
                 if other.conjugate_me:

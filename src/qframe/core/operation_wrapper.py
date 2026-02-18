@@ -27,7 +27,7 @@ class OperationWrapper:
         self._recip_gate_result_qfv: QFrameVariable = None
         self._calculate_impl = None
 
-    def merge_qfs(self):
+    def merge_qfs(self, other_qfs=None):
         # Override this method when necessary
         pass
 
