@@ -14,5 +14,16 @@
 # * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
 # ********************************************************************************
 
-from qframe.alg_primitives import *
-from qframe.core import *
+import qrisp
+from qframe.core.qframe_session import QFrameSession
+
+class QFrameVariable:
+    def __init__(self, size, qfs: QFrameSession=None, name=None):
+        if qfs is not None:
+            self.qfs = qfs
+        else:
+            self.qfs = QFrameSession()
+        self.qfs.register_qfv(self, size)
+
+        if name is not None:
+            self.name = name

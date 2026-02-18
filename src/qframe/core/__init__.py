@@ -14,5 +14,6 @@
 # * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
 # ********************************************************************************
 
-from qframe.alg_primitives import *
-from qframe.core import *
+from qframe.core.qframe_session import QFrameSession
+from qframe.core.qframe_variable import QFrameVariable
+from qframe.core.qframe_uint import QFrameUInt
