@@ -27,9 +27,12 @@ class Test_QFS_Adder:
         v2 = QFrameUInt(4, name='v2')
 
         v1 += v2
+        v1 += 3
+        v1 += 4
 
         # Get the QFrameSession object
         qfs = v1.qfs
+        anc_qv = qfs._register_anc
 
         seed_args = {v1: 14, v2: 12}
         target = qfs.calculate(seed_args, raw_result=True)
@@ -37,23 +40,24 @@ class Test_QFS_Adder:
 
         # Prepare the quantum state in an equal-weighted superposition (Walsh-Hadamard transform)
         h(v1.qv)
-        h(v2.qv)
+        #h(v2.qv)
+        v2.qv[:] = 12
 
-        qrisp.barrier(v1.qv[:] + v2.qv[:])
+        qrisp.barrier(v1.qv[:] + v2.qv[:] + anc_qv[:])
 
         # Single partial oracle iteration
         with qrisp.conjugate(qfs.apply_oracle_gate)(target_dict=target):
-            qrisp.barrier(v1.qv[:] + v2.qv[:])
+            qrisp.barrier(v1.qv[:] + v2.qv[:] + anc_qv[:])
             qrisp.s(v1.qv)
-            qrisp.barrier(v1.qv[:] + v2.qv[:])
-        qrisp.barrier(v1.qv[:] + v2.qv[:])
+            qrisp.barrier(v1.qv[:] + v2.qv[:] + anc_qv[:])
+        qrisp.barrier(v1.qv[:] + v2.qv[:] + anc_qv[:])
         h(v1.qv)
         h(v2.qv)
-        qrisp.barrier(v1.qv[:] + v2.qv[:])
+        qrisp.barrier(v1.qv[:] + v2.qv[:] + anc_qv[:])
         with qrisp.conjugate(qfs.apply_recip_oracle_gate)():
-            qrisp.barrier(v1.qv[:] + v2.qv[:])
+            qrisp.barrier(v1.qv[:] + v2.qv[:] + anc_qv[:])
             qrisp.s(v1.qv)
-            qrisp.barrier(v1.qv[:] + v2.qv[:])
+            qrisp.barrier(v1.qv[:] + v2.qv[:] + anc_qv[:])
         h(v2.qv)
         h(v1.qv)
 

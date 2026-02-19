@@ -14,7 +14,12 @@
 # * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
 # ********************************************************************************
 
-from qframe.core.qframe_session import QFrameSession
+import qrisp
 from qframe.core.qframe_variable import QFrameVariable
-from qframe.core.qframe_uint import QFrameUInt
-from qframe.core.utility import xor_const
+
+def xor_const(x: QFrameVariable, c: int):
+    mask = 0b1
+    for j in range(x.size):
+        if c & mask:
+            qrisp.x(x[j])
+        mask <<= 1

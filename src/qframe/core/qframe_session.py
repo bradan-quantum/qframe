@@ -23,10 +23,16 @@ class QFrameSession:
         self.qfv_list = []
         self._phase_anc = qrisp.QuantumVariable(1, name='_phase_anc')
         self._recip_carry_anc = qrisp.QuantumVariable(1, name='_recip_carry_anc')
-        self._rotr_anc: qrisp.QuantumVariable = None
+        self._register_anc: qrisp.QuantumVariable = None
 
     def register_qfv(self, qfv, size):
         self.qfv_list.append(qfv)
+        # Allocate a matching ancillary, in case it's needed (e.g. for reciprocal bit shift)
+        if self._register_anc is not None:
+            if size > self._register_anc.size:
+                self._register_anc.extend(size - self._register_anc.size)
+        else:
+            self._register_anc = qrisp.QuantumVariable(size, name='_register_anc')
 
     def append_operation_wrapper(self, opw):
         self.opw_list.append(opw)
@@ -40,12 +46,13 @@ class QFrameSession:
         for v in qfs_other.qfv_list:
             v.qfs = self
 
-        # Keep the largest _rotr_anc variable (if any)
-        if qfs_other._rotr_anc is not None:
-            if self._rotr_anc is None:
-                self._rotr_anc = qfs_other._rotr_anc
-            elif qfs_other._rotr_anc.size > self._rotr_anc.size:
-                self._rotr_anc = qfs_other._rotr_anc
+        # Keep the largest _register_anc variable (if any)
+        if qfs_other._register_anc is not None:
+            if self._register_anc is None:
+                self._register_anc = qfs_other._register_anc
+            elif qfs_other._register_anc.size > self._register_anc.size:
+                self._register_anc = qfs_other._register_anc
+                qfs_other._register_anc.delete(verify=True)
 
     def calculate(self, arg_dict: dict, raw_result=False):
         working_arg_dict = arg_dict.copy()

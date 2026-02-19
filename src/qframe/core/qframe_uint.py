@@ -39,6 +39,29 @@ class QFrameUInt(QFrameVariable):
             opw.set_recip_gate_apply_impl(lambda qfs: recip_adder_gate(other.qv, self.qv, qfs.recip_carry_anc, qfs.phase_anc))
             opw.set_calculate_impl(_calculate_impl)
             self.qfs.append_operation_wrapper(opw)
+        elif isinstance(other, int):
+            if other.bit_length() > self.size:
+                print(f'WARN: Adding constant too long for this register. Auto-truncating constant to {self.size} bits.')
+                bit_mask = (0b1 << self.size) - 1
+                other &= bit_mask
+            opw = OperationWrapper()
+            def _gate_apply_impl(qfs: QFrameSession):
+                self.qv += other
+            def _recip_gate_apply_impl(qfs: QFrameSession):
+                from qframe.core.utility import xor_const
+                other_qv = qfs._register_anc
+                xor_const(other_qv, other)  # other_qv ^= other
+                qrisp.h(other_qv)
+                recip_adder_gate(other_qv, self.qv, qfs.recip_carry_anc, qfs.phase_anc)
+                qrisp.h(other_qv)
+                xor_const(other_qv, other)
+            def _calculate_impl(arg_dict:dict):
+                N = 0b1 << self.size  # Addition modulo N
+                arg_dict[self] = (arg_dict[self] + other) % N
+            opw.set_gate_apply_impl(_gate_apply_impl)
+            opw.set_recip_gate_apply_impl(_recip_gate_apply_impl)
+            opw.set_calculate_impl(_calculate_impl)
+            self.qfs.append_operation_wrapper(opw)
         elif isinstance(other, OperationWrapper):
             other.merge_qfs(self.qfs)
             opw = OperationWrapper()
