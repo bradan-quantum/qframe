@@ -22,8 +22,8 @@ from qframe.core.qframe_uint import QFrameUInt
 import qframe
 
 
-class Test_QFS_Choose:
-    def test_qfs_choose(self):
+class Test_QFS_Rotr:
+    def test_qfs_rotr(self):
         v1 = QFrameUInt(4, name='v1')
         v2 = QFrameUInt(4, name='v2')
         r  = qframe.Rotr(4, [0, 1], shr_list=[3])

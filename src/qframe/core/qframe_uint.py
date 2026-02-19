@@ -33,7 +33,8 @@ class QFrameUInt(QFrameVariable):
             def _gate_apply_impl(qfs: QFrameSession):
                 self.qv += other.qv
             def _calculate_impl(arg_dict:dict):
-                arg_dict[self] += arg_dict[other]
+                N = 0b1 << self.size  # Addition modulo N
+                arg_dict[self] = (arg_dict[self] + arg_dict[other]) % N
             opw.set_gate_apply_impl(_gate_apply_impl)
             opw.set_recip_gate_apply_impl(lambda qfs: recip_adder_gate(other.qv, self.qv, qfs.recip_carry_anc, qfs.phase_anc))
             opw.set_calculate_impl(_calculate_impl)
@@ -56,7 +57,8 @@ class QFrameUInt(QFrameVariable):
                     other.recip_gate_apply(qfs)
                     recip_adder_gate(other.gate_result_qfv.qv, self.qv, qfs.recip_carry_anc, qfs.phase_anc)
             def _calculate_impl(arg_dict:dict):
-                arg_dict[self] += other.calculate(arg_dict)
+                N = 0b1 << self.size  # Addition modulo N
+                arg_dict[self] = (arg_dict[self] + other.calculate(arg_dict)) % N
             opw.set_gate_apply_impl(_gate_apply_impl)
             opw.set_recip_gate_apply_impl(_recip_gate_apply_impl)
             opw.set_calculate_impl(_calculate_impl)
