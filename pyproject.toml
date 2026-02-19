@@ -18,11 +18,12 @@ classifiers = [
 ]
 # Version history of Qrisp: https://pypi.org/project/qrisp/#history
 dependencies = [
-  "qrisp==0.7.11",
+  "qrisp >=0.7.11, <0.8",
   "qutip==5.2.0",
   "numpy==2.3.2",
   "scipy==1.16.1",
   "z3-solver==4.15.4.0",
+  "pytest",
 ]
 
 [project.urls]
