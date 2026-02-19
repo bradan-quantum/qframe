@@ -163,12 +163,17 @@ class Rotr:
             qrisp.swap(x, anc)
 
     def shift(self, x: QFrameVariable):
-        return ShiftOperationWrapper(self, x)
+        return ShiftOperationWrapper(self, x, conjugate_me=True)
+
+    def shift_inline(self, x: QFrameVariable):
+        # Meant to be used on a line by itself, not in a += expression
+        opw = ShiftInlineOperationWrapper(self, x, conjugate_me=False)
+        x.qfs.append_operation_wrapper(opw)
 
 
 class ShiftOperationWrapper(OperationWrapper):
-    def __init__(self, r: Rotr, x_qfv: QFrameVariable):
-        super().__init__(conjugate_me=True)
+    def __init__(self, r: Rotr, x_qfv: QFrameVariable, conjugate_me):
+        super().__init__(conjugate_me)
         self.r = r
         self.x_qfv: QFrameVariable = x_qfv
 
@@ -177,14 +182,16 @@ class ShiftOperationWrapper(OperationWrapper):
             self.x_qfv.qfs.merge(other_qfs)
 
     def gate_apply(self, qfs: QFrameSession) -> None:
-        # self.r.rotr_gate(self.x_qfv.qv, qfs._register_anc, clean_up=False, no_swap=True)
         self.r.rotr_gate(self.x_qfv.qv, qfs._register_anc)
         self._gate_result_qfv = self.x_qfv
 
     def recip_gate_apply(self, qfs: QFrameSession) -> None:
-        # self.r.recip_rotr_gate(self.x_qfv.qv, qfs._register_anc, clean_up=False, no_swap=True)
         self.r.recip_rotr_gate(self.x_qfv.qv, qfs._register_anc)
         self._recip_gate_result_qfv = self.x_qfv
 
     def calculate(self, arg_dict: dict):
         return self.r.rotr_function(arg_dict[self.x_qfv])
+
+class ShiftInlineOperationWrapper(ShiftOperationWrapper):
+    def calculate(self, arg_dict: dict):
+        arg_dict[self.x_qfv] = self.r.rotr_function(arg_dict[self.x_qfv])

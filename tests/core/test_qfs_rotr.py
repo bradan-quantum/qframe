@@ -68,3 +68,40 @@ class Test_QFS_Rotr:
         print(v1.qv.qs)
         # Show result
         print(qrisp.multi_measurement([v1.qv, v2.qv]))
+
+    def test_qfs_shift_inline(self):
+        vv = QFrameUInt(4, name='vv')
+        r  = qframe.Rotr(4, [0, 1], shr_list=[3])
+
+        r.shift_inline(vv)
+
+        # Get the QFrameSession object
+        qfs = vv.qfs
+
+        seed_args = {vv: 3}
+        target = qfs.calculate(seed_args, raw_result=True)
+        print(f'\ncalculate(vv: 3) = {qfs.calculate(seed_args)}\n')
+
+        # Prepare the quantum state in an equal-weighted superposition (Walsh-Hadamard transform)
+        h(vv.qv)
+
+        qrisp.barrier(vv.qv[:])
+
+        # Single partial oracle iteration
+        with qrisp.conjugate(qfs.apply_oracle_gate)(target_dict=target):
+            qrisp.barrier(vv.qv[:])
+            qrisp.s(vv.qv)
+            qrisp.barrier(vv.qv[:])
+        qrisp.barrier(vv.qv[:])
+        h(vv.qv)
+        qrisp.barrier(vv.qv[:])
+        with qrisp.conjugate(qfs.apply_recip_oracle_gate)():
+            qrisp.barrier(vv.qv[:])
+            qrisp.s(vv.qv)
+            qrisp.barrier(vv.qv[:])
+        h(vv.qv)
+
+        # Show the circuit
+        print(vv.qv.qs)
+        # Show result
+        print(vv.qv)
