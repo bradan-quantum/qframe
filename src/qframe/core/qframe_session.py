@@ -20,13 +20,14 @@ import qframe
 class QFrameSession:
     def __init__(self):
         self.opw_list = []
-        self.qfv_list = []
+        self.qfv_set = set()
         self._phase_anc = qrisp.QuantumVariable(1, name='_phase_anc')
         self._recip_carry_anc = qrisp.QuantumVariable(1, name='_recip_carry_anc')
         self._register_anc: qrisp.QuantumVariable = None
+        self.istrash = False
 
     def register_qfv(self, qfv, size):
-        self.qfv_list.append(qfv)
+        self.qfv_set.add(qfv)
         # Allocate a matching ancillary, in case it's needed (e.g. for reciprocal bit shift)
         if self._register_anc is not None:
             if size > self._register_anc.size:
@@ -38,12 +39,14 @@ class QFrameSession:
         self.opw_list.append(opw)
 
     def merge(self, qfs_other):
+        if qfs_other.istrash:
+            return    # Don't merge with trash!
         if self == qfs_other:
             return
 
         self.opw_list.extend(qfs_other.opw_list)
-        self.qfv_list.extend(qfs_other.qfv_list)
-        for v in qfs_other.qfv_list:
+        self.qfv_set.update(qfs_other.qfv_set)
+        for v in qfs_other.qfv_set:
             v.qfs = self
 
         # Keep the largest _register_anc variable (if any)
@@ -53,6 +56,8 @@ class QFrameSession:
             elif qfs_other._register_anc.size > self._register_anc.size:
                 self._register_anc = qfs_other._register_anc
                 qfs_other._register_anc.delete(verify=True)
+
+        qfs_other.istrash = True    # Mark other as trash
 
     def calculate(self, arg_dict: dict, raw_result=False):
         working_arg_dict = arg_dict.copy()

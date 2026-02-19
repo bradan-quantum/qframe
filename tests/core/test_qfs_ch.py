@@ -29,7 +29,8 @@ class Test_QFS_Choose:
         v3 = QFrameUInt(4, name='v3')
         v4 = QFrameUInt(4, name='v4')
 
-        v1 += qframe.ch(v2, v3, v4)
+        v2 += v1
+        v2 += qframe.ch(v1, v3, v4)
 
         # Get the QFrameSession object
         qfs = v1.qfs
@@ -37,9 +38,11 @@ class Test_QFS_Choose:
         # qfs.apply_oracle_gate()
         # print(v1.qv.qs)
 
-        seed_args = {v1: 0, v2: 6, v3: 7, v4: 8}
+        # seed_args = {v1: 0, v2: 6, v3: 7, v4: 8}
+        seed_args = {v1: 5, v2: 11, v3: 5, v4: 12}
         target = qfs.calculate(seed_args, raw_result=True)
-        print(f'calculate(v1: 0, v2: 6, v3: 7, v4: 8) = {qfs.calculate(seed_args)}')
+        # print(f'calculate(v1: 0, v2: 6, v3: 7, v4: 8) = {qfs.calculate(seed_args)}')
+        print(f'calculate(v1: 5, v2: 11, v3: 5, v4: 12) = {qfs.calculate(seed_args)}')
 
         # Prepare the quantum state in an equal-weighted superposition (Walsh-Hadamard transform)
         h(v1.qv)
