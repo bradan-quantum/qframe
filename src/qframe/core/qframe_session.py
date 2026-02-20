@@ -26,6 +26,19 @@ class QFrameSession:
         self._register_anc: qrisp.QuantumVariable = None
         self.istrash = False
 
+    @property
+    def phase_anc(self):
+        return self._phase_anc[0]
+
+    @property
+    def recip_carry_anc(self):
+        return self._recip_carry_anc[0]
+
+    @property
+    def register_anc(self):
+        self._using_register_anc = True
+        return self._register_anc[0]
+
     def register_qfv(self, qfv, size):
         self.qfv_set.add(qfv)
         # Allocate a matching ancillary, in case it's needed (e.g. for reciprocal bit shift)
@@ -95,10 +108,31 @@ class QFrameSession:
         for opw in self.opw_list:
             opw.recip_gate_apply(self)
 
-    @property
-    def phase_anc(self):
-        return self._phase_anc[0]
-
-    @property
-    def recip_carry_anc(self):
-        return self._recip_carry_anc[0]
+    def phase_oracle_iteration(self, target_dict: dict):
+        # Define the list of barrier qubits
+        barrier_qubit_list = []
+        for qfv in self.qfv_set:
+            barrier_qubit_list.extend(qfv.qv[:])
+        if self._register_anc is not None:
+            barrier_qubit_list.extend(self._register_anc[:])
+        barrier_qubit_list.extend(self._phase_anc)
+        barrier_qubit_list.extend(self._recip_carry_anc)
+        # List of target variables
+        target_qfv_list = list(target_dict.keys())
+        # Generate the phase oracle iteration circuit
+        with qrisp.conjugate(self.apply_oracle_gate)(target_dict=target_dict):
+            qrisp.barrier(barrier_qubit_list)
+            for qfv in target_qfv_list:
+                qrisp.s(qfv.qv)
+            qrisp.barrier(barrier_qubit_list)
+        qrisp.barrier(barrier_qubit_list)
+        for qfv in self.qfv_set:
+            qrisp.h(qfv.qv)
+        qrisp.barrier(barrier_qubit_list)
+        with qrisp.conjugate(self.apply_recip_oracle_gate)():
+            qrisp.barrier(barrier_qubit_list)
+            for qfv in target_qfv_list:
+                qrisp.s(qfv.qv)
+            qrisp.barrier(barrier_qubit_list)
+        for qfv in self.qfv_set:
+            qrisp.h(qfv.qv)
