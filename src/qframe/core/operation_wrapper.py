@@ -31,6 +31,10 @@ class OperationWrapper:
         # Override this method when necessary
         pass
 
+    def check_compatibility(self, other_qfv: QFrameVariable):
+        """Check compatibility of this OperationWrapper with the other operand in an expression"""
+        pass
+
     # Gate methods/properties
     def gate_apply(self, qfs: QFrameSession) -> None:
         self._gate_result_qfv = self._gate_apply_impl(qfs)

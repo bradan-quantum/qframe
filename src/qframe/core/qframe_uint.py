@@ -27,6 +27,8 @@ class QFrameUInt(QFrameVariable):
     def __iadd__(self, other):
         from qframe.alg_primitives.adder import recip_adder_gate
         if isinstance(other, QFrameUInt):
+            if self == other:
+                raise Exception("Incompatible operands: Cannot add a quantum variable to itself")
             if self.qfs != other.qfs:
                 self.qfs.merge(other.qfs)
             opw = OperationWrapper()
@@ -63,6 +65,7 @@ class QFrameUInt(QFrameVariable):
             opw.set_calculate_impl(_calculate_impl)
             self.qfs.append_operation_wrapper(opw)
         elif isinstance(other, OperationWrapper):
+            other.check_compatibility(self)
             other.merge_qfs(self.qfs)
             opw = OperationWrapper()
             def _gate_apply_impl(qfs: QFrameSession):

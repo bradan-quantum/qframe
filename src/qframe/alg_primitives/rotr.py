@@ -181,6 +181,10 @@ class ShiftOperationWrapper(OperationWrapper):
         if other_qfs is not None:
             self.x_qfv.qfs.merge(other_qfs)
 
+    def check_compatibility(self, other_qfv: QFrameVariable):
+        if self.x_qfv == other_qfv:
+            raise Exception("Incompatible operands: Cannot combine a quantum variable with a function of itself")
+
     def gate_apply(self, qfs: QFrameSession) -> None:
         self.r.rotr_gate(self.x_qfv.qv, qfs._register_anc)
         self._gate_result_qfv = self.x_qfv

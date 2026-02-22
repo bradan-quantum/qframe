@@ -88,6 +88,10 @@ class ChooseOperationWrapper(OperationWrapper):
         if other_qfs is not None:
             self.c_qfv.qfs.merge(other_qfs)
 
+    def check_compatibility(self, other_qfv: QFrameVariable):
+        if (self.a_qfv == other_qfv) or (self.b_qfv == other_qfv) or (self.c_qfv == other_qfv):
+            raise Exception("Incompatible operands: Cannot combine a quantum variable with a function of itself")
+
     def gate_apply(self, qfs: QFrameSession) -> None:
         choose_gate(self.a_qfv.qv, self.b_qfv.qv, self.c_qfv.qv)
         self._gate_result_qfv = self.c_qfv
