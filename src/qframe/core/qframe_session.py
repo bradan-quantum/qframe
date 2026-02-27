@@ -108,7 +108,7 @@ class QFrameSession:
         for opw in self.opw_list:
             opw.recip_gate_apply(self)
 
-    def phase_oracle_iteration(self, target_dict: dict):
+    def partial_oracle_iteration(self, target_dict: dict):
         # Define the list of barrier qubits
         barrier_qubit_list = []
         for qfv in self.qfv_set:

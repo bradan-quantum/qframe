@@ -41,7 +41,7 @@ class Test_Iteration:
         h(v1.qv)
         h(v2.qv)
 
-        qfs.phase_oracle_iteration(target)
+        qfs.partial_oracle_iteration(target)
 
         print(v1.qv.qs)
         print(qrisp.multi_measurement([v1.qv, v2.qv]))
