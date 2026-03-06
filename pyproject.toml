@@ -36,6 +36,9 @@ dependencies = [
 
 [tool.pytest.ini_options]
 pythonpath = "src"
+filterwarnings = [
+  "ignore:core.Jaxpr is missing a DebugInfo object."
+]
 
 # [tool.setuptools.packages.find]
 # where = ["src"]
