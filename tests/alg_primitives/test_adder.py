@@ -78,6 +78,12 @@ class Test_Adder:
 
         # Show the circuit
         print(y.qs)
+
         # Show result
-        print(qrisp.multi_measurement([x, y]))
+        result_dict = qrisp.multi_measurement([x, y])
+        print(result_dict)
+
+        for result_tuple in result_dict:
+            (x_res, y_res) = result_tuple
+            assert target == (x_res + y_res) % 2**n_float
 

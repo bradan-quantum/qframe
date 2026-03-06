@@ -20,6 +20,7 @@ import qrisp
 from qrisp import h
 
 from qframe.alg_primitives.maj import majority_gate, recip_majority_gate, recip_majority_first_order_gate
+import qframe
 
 
 @pytest.fixture
@@ -83,8 +84,14 @@ class Test_Maj:
 
         # Show the circuit
         print(c.qs)
+
         # Show result
-        print(qrisp.multi_measurement([a, b, c]))
+        result_dict = qrisp.multi_measurement([a, b, c])
+        print(result_dict)
+
+        for result_tuple in result_dict:
+            (a_res, b_res, c_res) = result_tuple
+            assert qframe.majority_function(a_res, b_res, c_res) == 0
 
     def test_maj_multi_bit(self, n_float, target):
         # Initialize variables
@@ -121,9 +128,16 @@ class Test_Maj:
 
         # Show the circuit
         print(c.qs)
-        # Show result
-        print(qrisp.multi_measurement([a, b, c]))
 
+        # Show result
+        result_dict = qrisp.multi_measurement([a, b, c])
+        print(result_dict)
+
+        for result_tuple in result_dict:
+            (a_res, b_res, c_res) = result_tuple
+            assert qframe.majority_function(a_res, b_res, c_res, width=n_float) == target
+
+    @pytest.mark.skip
     def test_maj_full_reciprocal_gate(self):
         pass
         # ToDo: The existing tests do NOT really test the full reciprocal gate, because they only
