@@ -23,9 +23,11 @@ from qframe.core.qframe_uint import QFrameUInt
 
 class Test_QFS_Adder:
     def test_qfs_adder(self):
-        v1 = QFrameUInt(4, name='v1')
-        v2 = QFrameUInt(4, name='v2')
+        width = 4
+        v1 = QFrameUInt(width, name='v1')
+        v2 = QFrameUInt(width, name='v2')
 
+        # Define algorithm using QFrame
         v1 += v2
         v1 += 3
         v1 += 4
@@ -63,5 +65,11 @@ class Test_QFS_Adder:
 
         # Show the circuit
         print(v1.qv.qs)
+
         # Show result
-        print(qrisp.multi_measurement([v1.qv, v2.qv]))
+        result_dict = qrisp.multi_measurement([v1.qv, v2.qv])
+        print(result_dict)
+
+        for result_tuple in result_dict:
+            (v1_res, v2_res) = result_tuple
+            assert target == qfs.calculate({v1: v1_res, v2: v2_res}, raw_result=True)

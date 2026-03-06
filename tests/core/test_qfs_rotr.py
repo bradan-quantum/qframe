@@ -24,10 +24,12 @@ import qframe
 
 class Test_QFS_Rotr:
     def test_qfs_rotr(self):
-        v1 = QFrameUInt(4, name='v1')
-        v2 = QFrameUInt(4, name='v2')
-        r  = qframe.Rotr(4, [0, 1], shr_list=[3])
+        width = 4
+        v1 = QFrameUInt(width, name='v1')
+        v2 = QFrameUInt(width, name='v2')
+        r  = qframe.Rotr(width, [0, 1], shr_list=[3])
 
+        # Define algorithm using QFrame
         v1 += r.shift(v2)
 
         # Get the QFrameSession object
@@ -66,13 +68,21 @@ class Test_QFS_Rotr:
 
         # Show the circuit
         print(v1.qv.qs)
+
         # Show result
-        print(qrisp.multi_measurement([v1.qv, v2.qv]))
+        result_dict = qrisp.multi_measurement([v1.qv, v2.qv])
+        print(result_dict)
+
+        for result_tuple in result_dict:
+            (v1_res, v2_res) = result_tuple
+            assert target == qfs.calculate({v1: v1_res, v2: v2_res}, raw_result=True)
 
     def test_qfs_shift_inline(self):
-        vv = QFrameUInt(4, name='vv')
-        r  = qframe.Rotr(4, [0, 1], shr_list=[3])
+        width = 4
+        vv = QFrameUInt(width, name='vv')
+        r  = qframe.Rotr(width, [0, 1], shr_list=[3])
 
+        # Define algorithm using QFrame
         r.shift_inline(vv)
 
         # Get the QFrameSession object
@@ -103,5 +113,11 @@ class Test_QFS_Rotr:
 
         # Show the circuit
         print(vv.qv.qs)
+
         # Show result
-        print(vv.qv)
+        result_dict = vv.qv.get_measurement()
+        print(result_dict)
+
+        for result in result_dict:
+            vv_res = result
+            assert target == qfs.calculate({vv: vv_res}, raw_result=True)

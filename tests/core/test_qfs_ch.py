@@ -24,19 +24,18 @@ import qframe
 
 class Test_QFS_Choose:
     def test_qfs_choose(self):
-        v1 = QFrameUInt(4, name='v1')
-        v2 = QFrameUInt(4, name='v2')
-        v3 = QFrameUInt(4, name='v3')
-        v4 = QFrameUInt(4, name='v4')
+        width = 4
+        v1 = QFrameUInt(width, name='v1')
+        v2 = QFrameUInt(width, name='v2')
+        v3 = QFrameUInt(width, name='v3')
+        v4 = QFrameUInt(width, name='v4')
 
+        # Define algorithm using QFrame
         v2 += v1
         v2 += qframe.ch(v1, v3, v4)
 
         # Get the QFrameSession object
         qfs = v1.qfs
-
-        # qfs.apply_oracle_gate()
-        # print(v1.qv.qs)
 
         # seed_args = {v1: 0, v2: 6, v3: 7, v4: 8}
         seed_args = {v1: 5, v2: 11, v3: 5, v4: 12}
@@ -80,5 +79,11 @@ class Test_QFS_Choose:
 
         # Show the circuit
         print(v1.qv.qs)
+
         # Show result
-        print(qrisp.multi_measurement([v1.qv, v2.qv, v3.qv, v4.qv]))
+        result_dict = qrisp.multi_measurement([v1.qv, v2.qv, v3.qv, v4.qv])
+        print(result_dict)
+
+        for result_tuple in result_dict:
+            (v1_res, v2_res, v3_res, v4_res) = result_tuple
+            assert target == qfs.calculate({v1: v1_res, v2: v2_res, v3: v3_res, v4: v4_res}, raw_result=True)

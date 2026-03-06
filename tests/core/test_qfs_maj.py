@@ -24,11 +24,13 @@ import qframe
 
 class Test_QFS_Majority:
     def test_qfs_majority(self):
-        v1 = QFrameUInt(4, name='v1')
-        v2 = QFrameUInt(4, name='v2')
-        v3 = QFrameUInt(4, name='v3')
-        v4 = QFrameUInt(4, name='v4')
+        width = 4
+        v1 = QFrameUInt(width, name='v1')
+        v2 = QFrameUInt(width, name='v2')
+        v3 = QFrameUInt(width, name='v3')
+        v4 = QFrameUInt(width, name='v4')
 
+        # Define algorithm using QFrame
         v1 += qframe.maj(v2, v3, v4)
 
         # Get the QFrameSession object
@@ -77,5 +79,11 @@ class Test_QFS_Majority:
 
         # Show the circuit
         print(v1.qv.qs)
+
         # Show result
-        print(qrisp.multi_measurement([v1.qv, v2.qv, v3.qv, v4.qv]))
+        result_dict = qrisp.multi_measurement([v1.qv, v2.qv, v3.qv, v4.qv])
+        print(result_dict)
+
+        for result_tuple in result_dict:
+            (v1_res, v2_res, v3_res, v4_res) = result_tuple
+            assert target == qfs.calculate({v1: v1_res, v2: v2_res, v3: v3_res, v4: v4_res}, raw_result=True)
