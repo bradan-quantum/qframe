@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling >=1.26"]
 build-backend = "hatchling.build"
 
 [project]
@@ -8,7 +8,7 @@ version = "0.0.1"
 authors = [
   { name="Fintan Bolton", email="fintan.bolton@bradan-quantum.com" },
 ]
-description = "General framework for quantum algorithms"
+description = "A framework for quantum algorithms"
 readme = "README.md"
 requires-python = ">=3.12"
 classifiers = [
@@ -16,6 +16,8 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+license = "EPL-2.0"
+license-files = ["LICEN[CS]E*"]
 # Version history of Qrisp: https://pypi.org/project/qrisp/#history
 dependencies = [
   "qrisp >=0.7.11, <0.8",
@@ -25,8 +27,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/bradan-quantum"
-Issues = "https://github.com/bradan-quantum"
+Homepage = "https://github.com/bradan-quantum/qframe"
+Issues = "https://github.com/bradan-quantum/qframe/issues"
 
 [tool.hatch.envs.test]
 dependencies = [
