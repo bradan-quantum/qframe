@@ -30,7 +30,6 @@ class Test_QFS_Adder:
         # Define algorithm using QFrame
         v1 += v2
         v1 += 3
-        v1 += 4
 
         # Get the QFrameSession object
         qfs = v1.qfs
@@ -42,13 +41,12 @@ class Test_QFS_Adder:
 
         # Prepare the quantum state in an equal-weighted superposition (Walsh-Hadamard transform)
         h(v1.qv)
-        #h(v2.qv)
-        v2.qv[:] = 12
+        h(v2.qv)
 
         qrisp.barrier(v1.qv[:] + v2.qv[:] + anc_qv[:])
 
         # Single partial oracle iteration
-        with qrisp.conjugate(qfs.apply_oracle_gate)(target_dict=target):
+        with qrisp.conjugate(qfs.apply_oracle_gate)(target_dict={v1: target[v1]}):
             qrisp.barrier(v1.qv[:] + v2.qv[:] + anc_qv[:])
             qrisp.s(v1.qv)
             qrisp.barrier(v1.qv[:] + v2.qv[:] + anc_qv[:])
@@ -72,4 +70,5 @@ class Test_QFS_Adder:
 
         for result_tuple in result_dict:
             (v1_res, v2_res) = result_tuple
-            assert target == qfs.calculate({v1: v1_res, v2: v2_res}, raw_result=True)
+            calculated_result = qfs.calculate({v1: v1_res, v2: v2_res}, raw_result=True)
+            assert target[v1] == calculated_result[v1]

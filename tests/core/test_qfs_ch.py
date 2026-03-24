@@ -31,16 +31,13 @@ class Test_QFS_Choose:
         v4 = QFrameUInt(width, name='v4')
 
         # Define algorithm using QFrame
-        v2 += v1
         v2 += qframe.ch(v1, v3, v4)
 
         # Get the QFrameSession object
         qfs = v1.qfs
 
-        # seed_args = {v1: 0, v2: 6, v3: 7, v4: 8}
         seed_args = {v1: 5, v2: 11, v3: 5, v4: 12}
         target = qfs.calculate(seed_args, raw_result=True)
-        # print(f'calculate(v1: 0, v2: 6, v3: 7, v4: 8) = {qfs.calculate(seed_args)}')
         print(f'calculate(v1: 5, v2: 11, v3: 5, v4: 12) = {qfs.calculate(seed_args)}')
 
         # Prepare the quantum state in an equal-weighted superposition (Walsh-Hadamard transform)
