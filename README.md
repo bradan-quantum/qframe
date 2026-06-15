@@ -14,9 +14,9 @@ The `qframe.QFrameUInt` type provides an abstract representation of the qubit re
 The following operations and functions are provided by QFrame:
 
 * $\mathrel{+}=$ operation&mdash;defines in-place addition modulo $2^w$, where $w$ is the bit-width of the `QFrameUInt` arguments. The following cases are supported:
-  - Given `QFrameUInt` instances $x$ and $y$, the operation $x \mathrel{+}= y$ implements $P\,\ket{x}\ket{y} = \ket{x+y}\ket{y}$.
+  - Given `QFrameUInt` instances $x$ and $y$, the operation $x \mathrel{+}= y$ implements $P\ket{x}\ket{y} = \ket{x+y}\ket{y}$.
   - Given a `QFrameUInt` instance $x$ and an integer constant $c$, the operation $x \mathrel{+}= c$ implements $\ket{x}\mapsto\ket{x+c}$.
-  - Given a `QFrameUInt` instance $x$ and a temporary function $t(y)$, such that $V\,\ket{y} = \ket{t(y)}$, the operation $x \mathrel{+}= t(y)$ implements $V^\dagger PV \ket{x}\ket{y} = \ket{x + t(y)}\ket{y}$.
+  - Given a `QFrameUInt` instance $x$ and a temporary function $t(y)$, such that $V\ket{y} = \ket{t(y)}$, the operation $x \mathrel{+}= t(y)$ implements $V^\dagger PV \ket{x}\ket{y} = \ket{x + t(y)}\ket{y}$.
 
 * `qframe.maj(a, b, c)`&mdash;defines the majority function $Maj(a, b, c)$, where $a$, $b$, and $c$ are $w$-bit registers. The `maj(a, b, c)` function is a temporary function, in the sense that it does not permanently change the values of registers $a$, $b$, and $c$. It is intended to be used on the right-hand side of a $\mathrel{+}=$ expression.
 
@@ -36,9 +36,9 @@ This utility provides all of the operations and functions you would need to impl
 
 ## Examples
 
-A set of working examples will shortly be published in a GitHub repository.
+A set of working examples are available from the following GitHub repository:
 
-In the meantime, you can get an idea of how to use the library functions by looking at the test files in `tests/core`.
+[https://github.com/bradan-quantum/qframe-examples](https://github.com/bradan-quantum/qframe-examples)
 
 ## Running unit tests
 
