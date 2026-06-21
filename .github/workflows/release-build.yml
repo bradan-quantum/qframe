@@ -29,15 +29,21 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Generate requirements.txt
+        run: |
+          # NOTE: this is a prerequisite for Syft/Grype SBOM scan
+          python -m pip freeze > requirements.txt
+
       - name: Create SBOM
         uses: anchore/sbom-action@v0
 
       - name: Scan SBOM
         uses: anchore/scan-action@v7
+        with:
+          only-fixed: true
 
       - name: Build release distributions
         run: |
-          # NOTE: put your own distribution build steps here.
           python -m pip install build
           python -m build
 
