@@ -33,6 +33,7 @@ jobs:
         run: |
           pwd
           python -m pip freeze > requirements.txt
+          cat requirements.txt
 
       - name: Create SBOM
         uses: anchore/sbom-action@v0
