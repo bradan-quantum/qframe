@@ -36,11 +36,16 @@ jobs:
 
       - name: Create SBOM
         uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
 
       - name: Scan SBOM
         uses: anchore/scan-action@v7
         with:
           only-fixed: true
+          sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
 
       - name: Build release distributions
         run: |
