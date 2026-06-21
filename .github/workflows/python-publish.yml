@@ -18,6 +18,9 @@ permissions:
 jobs:
   release-build-call:
     uses: ./.github/workflows/release-build.yml
+    permissions:
+      actions: read
+      contents: write
 
   pypi-publish:
     runs-on: ubuntu-latest
