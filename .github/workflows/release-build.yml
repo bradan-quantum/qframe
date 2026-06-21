@@ -31,12 +31,13 @@ jobs:
 
       - name: Generate requirements.txt
         run: |
-          python -m pip freeze > $GITHUB_WORKSPACE/requirements.txt
+          pwd
+          python -m pip freeze > requirements.txt
 
       - name: Create SBOM
         uses: anchore/sbom-action@v0
         with:
-          path: $GITHUB_WORKSPACE
+          path: .
           format: spdx-json
           output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
 
