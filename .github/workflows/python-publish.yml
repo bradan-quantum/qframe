@@ -16,32 +16,13 @@ permissions:
   contents: read
 
 jobs:
-  release-build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Build release distributions
-        run: |
-          # NOTE: put your own distribution build steps here.
-          python -m pip install build
-          python -m build
-
-      - name: Upload distributions
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-dists
-          path: dist/
+  release-build-call:
+    uses: ./.github/workflows/release-build.yml
 
   pypi-publish:
     runs-on: ubuntu-latest
     needs:
-      - release-build
+      - release-build-call
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
