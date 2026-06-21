@@ -4,7 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "qframe"
-version = "0.0.5"
+#version = "0.0.x"
+dynamic = ["version"]
 authors = [
   { name="Fintan Bolton", email="fintan.bolton@bradan-quantum.com" },
 ]
@@ -29,6 +30,9 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/bradan-quantum/qframe"
 Issues = "https://github.com/bradan-quantum/qframe/issues"
+
+[tool.hatch.version]
+path = "src/qframe/__about__.py"
 
 [tool.hatch.envs.test]
 dependencies = [
