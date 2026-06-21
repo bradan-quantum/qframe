@@ -32,7 +32,8 @@ jobs:
       - name: Generate requirements.txt
         run: |
           pwd
-          python -m pip freeze > requirements.txt
+          python -m pip -v freeze > requirements.txt
+          ls -l requirements.txt
           cat requirements.txt
 
       - name: Create SBOM
