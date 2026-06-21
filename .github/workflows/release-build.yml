@@ -29,10 +29,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Generate requirements.txt
+      - name: Build release distributions
         run: |
+          python -m pip install build
+          python -m build
           pwd
-          python -m pip -v freeze > requirements.txt
+          python -m pip freeze > requirements.txt
           ls -l requirements.txt
           cat requirements.txt
 
@@ -48,11 +50,6 @@ jobs:
         with:
           only-fixed: false
           sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
-
-      - name: Build release distributions
-        run: |
-          python -m pip install build
-          python -m build
 
       - name: Upload distributions
         uses: actions/upload-artifact@v7
