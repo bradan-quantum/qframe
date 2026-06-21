@@ -31,13 +31,12 @@ jobs:
 
       - name: Generate requirements.txt
         run: |
-          # NOTE: this is a prerequisite for Syft/Grype SBOM scan
-          python -m pip freeze > requirements.txt
+          python -m pip freeze > $GITHUB_WORKSPACE/requirements.txt
 
       - name: Create SBOM
         uses: anchore/sbom-action@v0
         with:
-          path: .
+          path: $GITHUB_WORKSPACE
           format: spdx-json
           output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
 
