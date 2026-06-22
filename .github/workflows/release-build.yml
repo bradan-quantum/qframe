@@ -21,6 +21,7 @@ jobs:
     permissions:
       actions: read
       contents: write
+      security-events: write
 
     steps:
       - uses: actions/checkout@v7
@@ -29,10 +30,16 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Generate requirements.txt
+      - name: Perform Bandit Analysis
+        uses: PyCQA/bandit-action@v1
+
+      - name: Build release distributions
         run: |
-          # NOTE: this is a prerequisite for Syft/Grype SBOM scan
-          python -m pip freeze > requirements.txt
+          pipx install hatch
+          hatch build
+          hatch run pip freeze > requirements.txt
+          ls -l requirements.txt
+          cat requirements.txt
 
       - name: Create SBOM
         uses: anchore/sbom-action@v0
@@ -46,11 +53,6 @@ jobs:
         with:
           only-fixed: true
           sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
-
-      - name: Build release distributions
-        run: |
-          python -m pip install build
-          python -m build
 
       - name: Upload distributions
         uses: actions/upload-artifact@v7
