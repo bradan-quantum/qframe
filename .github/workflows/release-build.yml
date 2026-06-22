@@ -21,6 +21,7 @@ jobs:
     permissions:
       actions: read
       contents: write
+      security-events: write
 
     steps:
       - uses: actions/checkout@v7
@@ -28,6 +29,9 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+
+      - name: Perform Bandit Analysis
+        uses: PyCQA/bandit-action@v1
 
       - name: Build release distributions
         run: |
