@@ -31,10 +31,10 @@ jobs:
 
       - name: Build release distributions
         run: |
-          python -m pip install build
-          python -m build
+          pipx install hatch
+          hatch run
           pwd
-          python -m pip freeze > requirements.txt
+          hatch run pip freeze > requirements.txt
           ls -l requirements.txt
           cat requirements.txt
 
