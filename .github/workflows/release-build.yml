@@ -32,7 +32,7 @@ jobs:
       - name: Build release distributions
         run: |
           pipx install hatch
-          hatch run
+          hatch build
           pwd
           hatch run pip freeze > requirements.txt
           ls -l requirements.txt
