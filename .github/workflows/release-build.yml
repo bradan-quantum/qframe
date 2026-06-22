@@ -48,7 +48,7 @@ jobs:
       - name: Scan SBOM
         uses: anchore/scan-action@v7
         with:
-          only-fixed: false
+          only-fixed: true
           sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
 
       - name: Upload distributions
