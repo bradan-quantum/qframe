@@ -33,7 +33,6 @@ jobs:
         run: |
           pipx install hatch
           hatch build
-          pwd
           hatch run pip freeze > requirements.txt
           ls -l requirements.txt
           cat requirements.txt
